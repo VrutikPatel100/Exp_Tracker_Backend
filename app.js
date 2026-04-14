@@ -1,6 +1,9 @@
 const express = require("express")
 const app = express()
 app.use(express.json())
+const cors = require("cors")
+app.use(cors()) // () <<-- dont forget this
+
 const userRoutes = require("./src/routes/UserRoutes")
 app.use("/user",userRoutes)
 
