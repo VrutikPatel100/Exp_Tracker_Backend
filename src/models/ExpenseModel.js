@@ -8,6 +8,7 @@ const expenseSchema = new Schema({
     description:{
         type:String
     },
+    //for expense we use amount variable
     amount:{
         type:Number
     },
@@ -28,7 +29,16 @@ const expenseSchema = new Schema({
     },
     paymentMode:{
         type:String,
-        enum:["UPI","CASH","CARD","CHECK","EMI"]
+        enum:["UPI","CASH","CARD","CHEQUE","EMI"]
     },
+    //for income we use income variable
+    income:{
+        type:Number
+    },
+    incomeCategory:{
+        type:Schema.Types.ObjectId,
+        ref:"incomeCategory"
+    },
+    
 },{timestamps:true})
 module.exports = mongoose.model("expense",expenseSchema)

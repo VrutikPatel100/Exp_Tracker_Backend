@@ -1,35 +1,51 @@
-const jwt = require("jsonwebtoken");
-const secret = "secret";
-const authMiddleware = (req, res, next) => {
-  //token --> rrq.headers
-  //token should be bearer token..
-  const token = req.headers.authorization;
-  console.log(token)
-  if (token) {
-    if (token.startsWith("Bearer ")) {
-      //Bearer jas;sojsaiomnsuapisagoias;sajhuoashsailhas;oasjaso
-      const tokenValue = token.split(" ")[1];
-      try {
-        const decoded = jwt.verify(tokenValue,secret);
-        //console.log(decoded);
+const jwt = require("jsonwebtoken")
+
+const secret = "secret"
+
+const authMiddleware = (req,res,next)=>{
+
+    try{
+
+        console.log("HEADERS =", req.headers)
+
+        const authHeader = req.headers.authorization
+
+        console.log("AUTH HEADER =", authHeader)
+
+        if(!authHeader){
+
+            return res.status(401).json({
+                message:"No token provided"
+            })
+        }
+
+        if(!authHeader.startsWith("Bearer ")){
+
+            return res.status(401).json({
+                message:"Invalid Bearer Token"
+            })
+        }
+
+        const token = authHeader.split(" ")[1]
+
+        console.log("TOKEN =", token)
+
+        const decoded = jwt.verify(token, secret)
+
+        console.log("DECODED =", decoded)
+
         req.user = decoded
-        next();
-      } catch (err) {
-        res.status(401).json({
-          message: "invalid token",
-          err: err,
-        });
-      }
-    } else {
-      res.status(400).json({
-        message: "token must be bearer token",
-      });
+
+        next()
+
+    }catch(err){
+
+        console.log("AUTH ERROR =", err)
+
+        return res.status(401).json({
+            message:"Unauthorized"
+        })
     }
-  } else {
-    res.status(401).json({
-      message: "token is not presnet..",
-    });
-  }
-};
+}
 
 module.exports = authMiddleware

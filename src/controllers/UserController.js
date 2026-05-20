@@ -104,9 +104,102 @@ const loginUser = async(req,res)=>{
    }
 }
 
+const getProfile = async (req, res) => {
+
+  try {
+    const userId = req.user._id
+    const user = await userSchema.findById(userId)
+
+    res.status(200).json({
+      message: "Profile fetched successfully",
+      data: user
+
+    })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({
+    message: "Error while fetching profile"
+
+    })
+
+  }
+
+}
+
+const uploadProfile = async (req, res) => {
+
+    try {
+
+        res.status(200).json({
+
+            message: "Image uploaded successfully",
+
+            image: req.file.path
+        })
+
+    } catch (err) {
+
+        res.status(500).json({
+
+            message: "Upload failed"
+        })
+    }
+}
+
+
+const uploadProfilePic = async (req,res)=>{
+  // const expId = req.body.expId;
+  const userId = req.user._id;
+  const file = req.file;
+
+  const updateExp = await userSchema.findByIdAndUpdate(userId,{profilePic:file.path},{ new:true })
+  res.status(200).json({
+    message:"profile picture uploaded successfully",
+    data:updateExp
+  })
+}
+
+const updateProfile = async (req,res)=>{
+
+    try{
+
+        const userId = req.user._id
+
+        const updatedUser =
+        await userSchema.findByIdAndUpdate(
+
+            userId,
+
+            req.body,
+
+            {new:true}
+        )
+
+        res.status(200).json({
+
+            message:"Profile Updated",
+
+            data:updatedUser
+        })
+
+    }catch(err){
+
+        res.status(500).json({
+
+            message:"Update Failed",
+
+            error:err.message
+        })
+    }
+}
+
 module.exports = {
   createUser,
   getAllUsers,
   deleteUser,
-  loginUser
+  loginUser,
+  getProfile,
+  uploadProfile,
+  uploadProfilePic,
+  updateProfile
 };
