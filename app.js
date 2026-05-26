@@ -19,6 +19,10 @@ app.use("/incomeCat",incomeCategoryRoutes)
 const expenseRoutes = require("./src/routes/ExpenseRoutes")
 app.use("/exp",expenseRoutes)
 
+
+const budgetRoutes = require("./src/routes/BudgetRoutes")
+app.use("/budget", budgetRoutes)
+
 //DBCONNECTION:
 const DBConnection = require("./src/utils/DBConnection")
 DBConnection()
