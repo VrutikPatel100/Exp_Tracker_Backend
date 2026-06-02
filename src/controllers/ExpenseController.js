@@ -1,4 +1,5 @@
 const expenseSchema = require("../models/ExpenseModel")
+const {sendNotification} = require("../service/NotificationService")
 
 const createExpense = async(req,res)=>{
 
@@ -7,6 +8,7 @@ const createExpense = async(req,res)=>{
 
         const userId = req.user._id;
         const savedExpense = await expenseSchema.create({...req.body,userId:userId})
+        sendNotification(req.user,"expenditure added successfully",0,"new_admission","email")
         res.status(201).json({
             message:"expense created..",
             data:savedExpense
