@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 const DBConnection = ()=>{
 
-    mongoose.connect("mongodb://127.0.0.1/24_fullday_exp").then(()=>{
+    mongoose.connect("mongodb+srv://vrutik:vrutik@cluster0.bk9ugee.mongodb.net/Backend_Expense").then(()=>{
         console.log("database connected..")
     }).catch((err)=>{
         console.log("error while connecting db..")
