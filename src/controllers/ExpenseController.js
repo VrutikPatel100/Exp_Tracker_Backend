@@ -1,5 +1,4 @@
 const expenseSchema = require("../models/ExpenseModel")
-const {sendNotification} = require("../service/NotificationService")
 
 const createExpense = async(req,res)=>{
 
@@ -8,7 +7,6 @@ const createExpense = async(req,res)=>{
 
         const userId = req.user._id;
         const savedExpense = await expenseSchema.create({...req.body,userId:userId})
-        sendNotification(req.user,"expenditure added successfully",0,"new_admission","email")
         res.status(201).json({
             message:"expense created..",
             data:savedExpense
@@ -25,33 +23,40 @@ const createExpense = async(req,res)=>{
 
 }
 const getExpesneByUserId = async(req,res)=>{
-
-    const userId = req.user._id;
-    var sort = req.query.sort || 1;
-    sort = parseInt(sort);
-    var datesort = req.query.date || 1
-    datesort = parseInt(datesort);
-    console.log(datesort)
-    const type = req.query.type || "expense"
-    let expenses;
-    if(type =="expense"){
-        //if type is expense then  fetch title description amount expDate paymentMode expCat     
-        //fetch only thoese data where income filed is not there
-         expenses = await expenseSchema.find({userId:userId,income:{$exists:false}},["title","description","amount","expenseDate","paymentMode","expCat"]).populate("expCat").sort({amount:sort,expenseDate:datesort})
+    try {
+        const userId = req.user._id;
+        var sort = req.query.sort || 1;
+        sort = parseInt(sort);
+        var datesort = req.query.date || 1
+        datesort = parseInt(datesort);
+        console.log(datesort)
+        const type = req.query.type || "expense"
+        let expenses;
+        if(type =="expense"){
+            //if type is expense then  fetch title description amount expDate paymentMode expCat     
+            //fetch only thoese data where income filed is not there
+             expenses = await expenseSchema.find({userId:userId,income:{$exists:false}},["title","description","amount","expenseDate","paymentMode","expCat"]).populate("expCat").sort({amount:sort,expenseDate:datesort})
+        }
+        else{
+            //if type is income then fetch title description incomeCategory income expDate
+            ////fetch only thoese data where expense filed is not there
+             expenses = await expenseSchema.find({userId:userId,amount:{$exists:false}},["title","description","income","expenseDate","incomeCategory","paymentMode"]).populate("incomeCategory").sort({income:sort,expenseDate:datesort})
+        }
+        
+        console.log(
+                expenses.map(e => e.expenseDate)
+            );
+        res.status(200).json({
+            message:"expense",
+            data:expenses
+        })
+    } catch (err) {
+        console.error("Error in getExpesneByUserId:", err);
+        res.status(500).json({
+            message: "Error while fetching expenses/income",
+            error: err.message
+        });
     }
-    else{
-        //if type is income then fetch title description incomeCategory income expDate
-        ////fetch only thoese data where expense filed is not there
-         expenses = await expenseSchema.find({userId:userId,amount:{$exists:false}},["title","description","income","expenseDate","incomeCategory","paymentMode"]).populate("incomeCategory").sort({income:sort,expenseDate:datesort})
-    }
-    
-    console.log(
-            expenses.map(e => e.expenseDate)
-        );
-    res.status(200).json({
-        message:"expense",
-        data:expenses
-    })
 }
 
 const searchExp = async(req,res)=>{

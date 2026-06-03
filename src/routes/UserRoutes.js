@@ -4,6 +4,8 @@ const upload = require("../middleware/UploadMiddleware")
 const userController = require("../controllers/UserController")
 const authMiddleware = require("../middleware/AuthMiddleware")
 router.get("/",userController.getAllUsers)
+// Signup Route
+router.post("/signup", userController.createUser)
 router.post("/",userController.createUser)
 router.delete("/delete/:id",userController.deleteUser)
 router.post("/login",userController.loginUser)

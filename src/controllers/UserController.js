@@ -5,32 +5,55 @@ const jwt = require("jsonwebtoken")
 const secret = "secret"
 
 const createUser = async (req, res) => {
-  console.log(req.body);
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+  console.log("Signup Request Body:", req.body);
   try {
-    const savedUser = await userSchema.create({
-      ...req.body,
-      password: hashedPassword,
-    });
-    //mail..
-    await mailSend(
-      savedUser.email,
-      "Welcome Mail",
-      "Welcome to expense manager app",
-    );
+    const { password, email } = req.body;
+    if (!password) {
+      return res.status(400).json({
+        message: "Password is required",
+      });
+    }
+    if (!email) {
+      return res.status(400).json({
+        message: "Email is required",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userData = { ...req.body, password: hashedPassword };
+    if (userData.gender === "") {
+      delete userData.gender;
+    }
+    
+    const savedUser = await userSchema.create(userData);
+
     if (savedUser) {
-      res.status(201).json({
+      // Send welcome mail asynchronously (non-blocking)
+      mailSend(
+        savedUser.email,
+        "Welcome Mail",
+        "Welcome to expense manager app"
+      ).catch((mailErr) => {
+        console.error("Failed to send welcome email:", mailErr);
+      });
+
+      return res.status(201).json({
         message: "user created..",
       });
     } else {
-      res.status(500).json({
+      return res.status(500).json({
         message: "user not created..",
       });
     }
   } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      message: "error while creating user..",
+    console.error("Signup Error:", err);
+    if (err.code === 11000) {
+      return res.status(400).json({
+        message: "Email is already registered.",
+      });
+    }
+    return res.status(500).json({
+      message: err.message || "error while creating user..",
     });
   }
 };

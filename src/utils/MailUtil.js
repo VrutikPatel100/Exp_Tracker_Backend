@@ -1,6 +1,6 @@
 const mailer = require("nodemailer");
 
-const mailSend = async (to, subject, text) => {
+const mailSend = async (to, subject, text, attachments = []) => {
   const transport = mailer.createTransport({
     service: "gmail",
     auth: {
